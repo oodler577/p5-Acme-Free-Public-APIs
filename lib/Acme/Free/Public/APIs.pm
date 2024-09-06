@@ -19,6 +19,16 @@ sub new {
     return $self;
 }
 
+# https://www.freepublicapis.com/api/apis
+
+sub apis {
+    my $self = shift;
+    my $URL  = sprintf "%s/apis", BASEURL;
+    my $resp = HTTPTiny2h2o $self->ua->get($URL);
+    return $resp->content;
+}
+
+
 sub random {
     my $self = shift;
     my $URL  = sprintf "%s/random", BASEURL;

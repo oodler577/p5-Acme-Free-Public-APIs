@@ -22,10 +22,20 @@ dispatch {
   xdefault shift, q{random};
 }
 $subcommand,
+    apis => sub { exit do_apis( \@ARGV )   },
   random => sub { exit do_random( \@ARGV ) },
   help   => \&do_help,
   ;
 #<<<
+
+sub do_apis {
+    my $apis = Acme::Free::Public::APIs->new->apis;
+    foreach my $api (sort { $a->id <=> $b->id } ($apis->all)) {
+      printf "% 4d % 4d %s\n", $api->id, $api->health, $api->title;
+    } 
+    return EXIT_SUCCESS;
+}
+
 sub do_random {
     my $api     = Acme::Free::Public::APIs->new->random;
     my $out     = <<EOAPI;
