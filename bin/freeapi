@@ -6,7 +6,7 @@ use warnings;
 
 use Dispatch::Fu;
 use Acme::Free::Public::APIs qw//;
-use Util::H2O::More          qw/ddd Getopt2h2o o2d/;
+use Util::H2O::More          qw/d2o ddd Getopt2h2o o2d/;
 use open qw(:std :utf8);     # Ensures input/output are treated as UTF-8
 use Encode;
 
@@ -22,14 +22,21 @@ dispatch {
   xdefault shift, q{random};
 }
 $subcommand,
-    apis => sub { exit do_apis( \@ARGV )   },
+  apis   => sub { exit do_apis( \@ARGV )   },
   random => sub { exit do_random( \@ARGV ) },
   help   => \&do_help,
   ;
 #<<<
 
 sub do_apis {
-    my $apis = Acme::Free::Public::APIs->new->apis;
+    my ($ARGV) = @_;
+    my $o      = Getopt2h2o $ARGV, {}, qw/id=s/;
+    my $apis   = Acme::Free::Public::APIs->new->apis(id => $o->id);
+
+    if ($o->id) {
+      $apis = d2o -autoundef, [ $apis ];
+    }
+
     foreach my $api (sort { $a->id <=> $b->id } ($apis->all)) {
       printf "% 4d % 4d %s\n", $api->id, $api->health, $api->title;
     } 

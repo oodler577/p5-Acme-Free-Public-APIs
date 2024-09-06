@@ -7,7 +7,7 @@ our $VERSION = '1.0.0';
 
 use HTTP::Tiny;
 use JSON            qw/decode_json/;
-use Util::H2O::More qw/baptise ddd HTTPTiny2h2o/;
+use Util::H2O::More qw/baptise d2o ddd HTTPTiny2h2o/;
 
 use constant {
     BASEURL => "https://www.freepublicapis.com/api/",
@@ -20,10 +20,17 @@ sub new {
 }
 
 # https://www.freepublicapis.com/api/apis
+# https://www.freepublicapis.com/api/apis/275
 
 sub apis {
-    my $self = shift;
-    my $URL  = sprintf "%s/apis", BASEURL;
+    my $self   = shift;
+    my $params = d2o -autoundef, { @_ };
+    my $URL    = sprintf "%s/apis", BASEURL;
+
+    if ($params->id) {
+      $URL = sprintf "%s/%d", $URL, $params->id;
+    }
+
     my $resp = HTTPTiny2h2o $self->ua->get($URL);
     return $resp->content;
 }
