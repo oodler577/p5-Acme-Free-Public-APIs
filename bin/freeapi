@@ -30,16 +30,30 @@ $subcommand,
 
 sub do_apis {
     my ($ARGV) = @_;
-    my $o      = Getopt2h2o $ARGV, {}, qw/id=s/;
+    my $o      = Getopt2h2o $ARGV, {}, qw/details id=s/;
     my $apis   = Acme::Free::Public::APIs->new->apis(id => $o->id);
 
-    if ($o->id) {
-      $apis = d2o -autoundef, [ $apis ];
-    }
-
     foreach my $api (sort { $a->id <=> $b->id } ($apis->all)) {
-      printf "% 4d % 4d %s\n", $api->id, $api->health, $api->title;
+      if ( $o->details) {
+        my $out     = <<EOAPI;
+id:            %d
+title:         %s%s
+site URL:      %s
+methods:       %s 
+health:        %d 
+documentation: %s
+description:   %s
+EOAPI
+        printf $out, $api->id, ($api->emoji) ? sprintf("(%s) ",$api->emoji) : "",, $api->title, $api->source, $api->methods, $api->health, $api->documentation, $api->description;
+      }
+      else {
+        printf "% 4d % 4d %s\n", $api->id, $api->health, $api->title;
+      }
     } 
+
+    my $count = scalar ($apis->all);
+    printf STDERR "Found %d API%s\n", $count, ($count != 1) ? "s" : "";
+
     return EXIT_SUCCESS;
 }
 
@@ -54,7 +68,7 @@ health:        %d
 documentation: %s
 description:   %s
 EOAPI
-    printf $out, $api->id, ($api->emoji) ? sprintf("(%s) ",$api->emoji) : "",, $api->title, $api->source, $api->methods, $api->health, $api->documentation, $api->source;
+    printf $out, $api->id, ($api->emoji) ? sprintf("(%s) ",$api->emoji) : "",, $api->title, $api->source, $api->methods, $api->health, $api->documentation, $api->description;
     return EXIT_SUCCESS;
 }
 
